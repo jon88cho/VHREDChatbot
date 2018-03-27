@@ -19,9 +19,8 @@ def string_to_character_embeddings(filename):
         tokens = ' '.join(words)
         lowercased = [token.lower() for token in tokens]
         chars = sorted(list(set(lowercased)))
+        chars.append("</s>")
         mapping = dict((c, i) for i, c in enumerate(chars))
-        size = len(mapping)
-        mapping.update({'</s>':float(size)})
         size = len(mapping)
         for i in range(size):
             zeros = np.zeros(size)
