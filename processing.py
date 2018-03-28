@@ -63,7 +63,7 @@ def word_embeddings_mapping(corpus):
 
 
 #regular dictionary
-list_of_characters, dictionary = string_to_charcater_dictionary = string_to_character_embeddings("test.txt")
+list_of_characters, dictionary = string_to_charcater_dictionary = string_to_character_embeddings(10,"test.txt")
 print(string_to_charcater_dictionary)
 # Print the "tuple as the keys" dictionary
 character_to_string_dictionary = switch_key_value(dictionary)
