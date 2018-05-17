@@ -14,7 +14,7 @@ input_shape = (10,300)
 h_size = 300
 dictionary_size = 3002
 last_layer_activ = 'softmax'
-batch_size = 1
+batch_size = 20
 dict_shape = (10,3002)
 output_shape = (10,300)
 
@@ -31,7 +31,7 @@ RNN_cell = SimpleRNNCell(h_size)
 #inputs
 encoder_inputs = Input(shape= input_shape, name='encoder_inputs')
 decoder_inputs = Input(shape= output_shape, name = 'decoder_inputs')
-#decoder_targets = Input(shape= dict_shape, name = 'decoder_targets') #IS this necessary?
+decoder_targets = Input(shape= dict_shape, name = 'decoder_targets') #IS this necessary?
 
 #encoder
 encoder = RNN(RNN_cell, return_state=True)
@@ -50,7 +50,12 @@ decoder_dense = Dense(dictionary_size, activation=last_layer_activ)
 decoder_output_probs = decoder_dense(decoder_outputs)
 
 #Build model
-vred = Model([encoder_inputs, decoder_inputs], decoder_outputs, name='VRED')
+vred = Model([encoder_inputs, decoder_inputs], decoder_output_probs, name='VRED')
+KL_loss = -0.5 * K.sum(K.mean(1 + z_var - K.square(z_mean) - K.exp(z_var)))
+loss = lambda y_targ, y_pred: categorical_crossentropy(y_targ, y_pred) + KL_loss
+#vred.add_loss(loss)
+
+vred.compile(optimizer='adam', loss=loss)
 
 dummy_x_train = np.random.randn(10,10,300)
 dummy_y_train = np.random.randn(10,10,300)
@@ -67,17 +72,13 @@ if __name__ == '__main__':
     #pkl.loads(args.config)
     
     #loss
-    KL_loss = -0.5*K.sum(K.mean(1 + z_var - K.square(z_mean) - K.exp(z_var)))
-    loss = categorical_crossentropy(decoder_targets, decoder_output_probs) + KL_loss
-    vred.add_loss(loss)
-    vred.compile(optimizer='adam')
+
     
     vred.summary()
-    
-    vred.l
+    vred.fit([np.array(Input),np.array(Output)],np.array(one_hot_vectors),epochs=epochs, batch_size=batch_size)
+
     
     #last_layer_activ = 'sigmoid'
     
-    vred.fit([np.array(Input),np.array(Output)],np.array(one_hot_vectors),epochs=epochs, batch_size=batch_size)
-    
+    vred.save("model.h5")
         
