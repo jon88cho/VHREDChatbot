@@ -31,7 +31,7 @@ RNN_cell = SimpleRNNCell(h_size)
 #inputs
 encoder_inputs = Input(shape= input_shape, name='encoder_inputs')
 decoder_inputs = Input(shape= output_shape, name = 'decoder_inputs')
-decoder_targets = Input(shape= dict_shape, name = 'decoder_targets') #IS this necessary?
+#decoder_targets = Input(shape= dict_shape, name = 'decoder_targets') #IS this necessary?
 
 #encoder
 encoder = RNN(RNN_cell, return_state=True)
@@ -50,7 +50,7 @@ decoder_dense = Dense(dictionary_size, activation=last_layer_activ)
 decoder_output_probs = decoder_dense(decoder_outputs)
 
 #Build model
-vred = Model([encoder_inputs, decoder_inputs,decoder_targets], decoder_outputs, name='VRED')
+vred = Model([encoder_inputs, decoder_inputs], decoder_outputs, name='VRED')
 
 dummy_x_train = np.random.randn(10,10,300)
 dummy_y_train = np.random.randn(10,10,300)
@@ -74,10 +74,10 @@ if __name__ == '__main__':
     
     vred.summary()
     
-    
+    vred.l
     
     #last_layer_activ = 'sigmoid'
     
-    vred.fit([np.array(Input),np.array(Output),np.array(one_hot_vectors)],epochs=epochs, batch_size=batch_size)
+    vred.fit([np.array(Input),np.array(Output)],np.array(one_hot_vectors),epochs=epochs, batch_size=batch_size)
     
         
