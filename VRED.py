@@ -10,13 +10,13 @@ import pickle as pkl
 #SET HPARAMS MANUALLY BEFORE RUNNING
 #hparams = [input_shape, h_size, dictionary_size, last_layer_activ, batch_size]
 
-input_shape = (5,300)
+input_shape = (10,300)
 h_size = 300
-dictionary_size = 3000
+dictionary_size = 3002
 last_layer_activ = 'softmax'
 batch_size = 1
-dict_shape = (5,3001)
-output_shape = (5,300)
+dict_shape = (10,3002)
+output_shape = (10,300)
 
 #Helper function for sampling from latent distribution
 def sample(args):
@@ -52,9 +52,11 @@ decoder_output_probs = decoder_dense(decoder_outputs)
 #Build model
 vred = Model([encoder_inputs, decoder_inputs,decoder_targets], decoder_outputs, name='VRED')
 
-x_train = np.random.randn(10,10,300)
-y_train = np.random.randn(10,10,300)
-decoder_train = np.random.randn(10,5,3000)
+dummy_x_train = np.random.randn(10,10,300)
+dummy_y_train = np.random.randn(10,10,300)
+dummy_decoder_train = np.random.randn(10,5,3000)
+one_hot_vectors,Output,Input = processing.main()
+
 epochs = 4
 if __name__ == '__main__':
     
@@ -76,6 +78,6 @@ if __name__ == '__main__':
     
     #last_layer_activ = 'sigmoid'
     
-    vred.fit([np.array(x_train),np.array(x_train),np.array(decoder_train)],epochs=epochs, batch_size=batch_size)
+    vred.fit([np.array(Input),np.array(Output),np.array(one_hot_vectors)],epochs=epochs, batch_size=batch_size)
     
         

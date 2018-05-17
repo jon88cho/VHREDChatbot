@@ -3,6 +3,8 @@ from gensim.models import KeyedVectors
 import numpy as np
 from gensim.corpora import Dictionary
 from keras.preprocessing import sequence
+import pickle as pkl
+
 #declare global variables
 
 Start_vector = np.zeros(300,)
@@ -72,9 +74,9 @@ def indexing(Corpus,keep_n,length,samples):
         temp.append(one_hot(X_train[i]))
     return temp
 #collect all the lists into one list
-def collect(df,column):
+def collect(df,column,length):
     output = []
-    for i in range(len(df)):
+    for i in range(length):
         output.append(df[column][i])
     output = np.array(output)
     return output
@@ -89,7 +91,9 @@ def main ():
     Corpus['Output'] = Corpus['Output'].apply(padding)
     Corpus['Output_Vectors'] = Corpus['Output'].apply(map_words_to_vectors) #List of word vectors
     Corpus['Input_Vectors'] = Corpus['Input'].apply(map_words_to_vectors)
-    one_hot_vectors = indexing(Corpus,keep_n,10,3000)
-    Output = collect(Corpus,"Output_Vectors")
-    Input = collect(Corpus,"Input_Vectors")
+    one_hot_vectors = np.array(indexing(Corpus,keep_n,10,3000))
+    Output = collect(Corpus,"Output_Vectors",3000)
+    Input = collect(Corpus,"Input_Vectors",3000)
     return one_hot_vectors,Output,Input
+
+
