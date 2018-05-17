@@ -2,6 +2,8 @@ from keras import backend as K
 from keras.layers import Dense, Input, RNN, SimpleRNNCell, Lambda
 from keras.models import Model
 from keras.losses import categorical_crossentropy
+import numpy as np
+import processing
 from argparse import ArgumentParser
 import pickle as pkl
 
@@ -10,10 +12,11 @@ import pickle as pkl
 
 input_shape = (5,300)
 h_size = 300
-dictionary_size = 2000
+dictionary_size = 3000
 last_layer_activ = 'softmax'
-batch_size = 10
-
+batch_size = 1
+dict_shape = (5,3001)
+output_shape = (5,300)
 
 #Helper function for sampling from latent distribution
 def sample(args):
@@ -27,8 +30,8 @@ def sample(args):
 RNN_cell = SimpleRNNCell(h_size)
 #inputs
 encoder_inputs = Input(shape= input_shape, name='encoder_inputs')
-decoder_inputs = Input(shape= input_shape, name = 'decoder_inputs')
-decoder_targets = Input(shape= input_shape, name = 'decoder_targets') #IS this necessary?
+decoder_inputs = Input(shape= output_shape, name = 'decoder_inputs')
+decoder_targets = Input(shape= dict_shape, name = 'decoder_targets') #IS this necessary?
 
 #encoder
 encoder = RNN(RNN_cell, return_state=True)
@@ -47,9 +50,12 @@ decoder_dense = Dense(dictionary_size, activation=last_layer_activ)
 decoder_output_probs = decoder_dense(decoder_outputs)
 
 #Build model
-vred = Model([encoder_inputs, decoder_inputs], decoder_outputs, name='VRED')
+vred = Model([encoder_inputs, decoder_inputs,decoder_targets], decoder_outputs, name='VRED')
 
-
+x_train = np.random.randn(10,10,300)
+y_train = np.random.randn(10,10,300)
+decoder_train = np.random.randn(10,5,3000)
+epochs = 4
 if __name__ == '__main__':
     
     #parser = ArgumentParser()
@@ -60,7 +66,7 @@ if __name__ == '__main__':
     
     #loss
     KL_loss = -0.5*K.sum(K.mean(1 + z_var - K.square(z_mean) - K.exp(z_var)))
-    loss = categorical_crossentropy(decoder_targets, decoder_outputs) + KL_loss
+    loss = categorical_crossentropy(decoder_targets, decoder_output_probs) + KL_loss
     vred.add_loss(loss)
     vred.compile(optimizer='adam')
     
@@ -70,6 +76,6 @@ if __name__ == '__main__':
     
     #last_layer_activ = 'sigmoid'
     
-    #vred.fit(x_train, epochs=epochs, batch_size=batch_size)    
+    vred.fit([np.array(x_train),np.array(x_train),np.array(decoder_train)],epochs=epochs, batch_size=batch_size)
     
         
