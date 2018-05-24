@@ -79,6 +79,6 @@ if __name__ == '__main__':
 
     
     #last_layer_activ = 'sigmoid'
-    
+
     vred.save("model.h5")
         

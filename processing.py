@@ -30,49 +30,54 @@ def padding(sequence):
     return sequence
 
 #function to map the list of words to vectors
-def map_words_to_vectors (text):
-    list_of_vectors = []
+def map_words_to_vectors (text): #takes a list of words
+    list_of_vectors = [] #the list of vectors to be returned
     for word in text:
         try:
             if word == "</s>":
-                list_of_vectors.append(Start_vector)
+                list_of_vectors.append(Start_vector) #append the Start Vector
             elif word == "<PAD>":
-                list_of_vectors.append(Padding_vector)
+                list_of_vectors.append(Padding_vector) #append the Padding Vector
             else:
-                list_of_vectors.append(word_vectors[word])
-        except:
+                list_of_vectors.append(word_vectors[word]) #append the word vector
+        except: #except if the word is not included in the Google Corpus
             list_of_vectors.append(Unk_vector)
     return list_of_vectors
 
+#function to one hot the sentence
 def one_hot(sentence):
-    temp = []
+    one_hotted_list = []
     for number in sentence:
         array = np.zeros(keep_n+2) #add two .. 1) </s> 3000 2)padding 3001
         array[number] = 1
-        temp.append(array)
-    return temp
+        one_hotted_list.append(array)
+    return one_hotted_list
 
-def indexing(Corpus,keep_n,length,samples):
-    sentences = []
+#indexes the word ie maps a word to a number
+def indexing(Corpus,keep_n,length,samples): #samples => number of samples in the corpus to take
+    sentences = [] #list of list of words
     for i in range(len(Corpus)):
-        sentences.append(Corpus['Output'][i])
+        sentences.append(Corpus['Output'][i]) #puts all the lists of words(Output[i]) into the "sentences" list
     dct = Dictionary(sentences)
-    dct.filter_extremes(keep_n)
-    dictionary = (dct.token2id)
+    dct.filter_extremes(keep_n) #keeps the top n words
+    dictionary = (dct.token2id) #dictionary now has all the words mapped to a number
+    #newsentences will be a list of lists that only includes the top n indexes
     newsentences = []
-    for sentence in sentences:
+    for sentence in sentences: #for each list in the sentences list
         newsentence = [keep_n] #pad the sentence with the </s> token
-        for item in sentence:
-            if (item in dictionary):
-                newsentence.append(dictionary[item])
+        for item in sentence: #for each word in the sentence
+            if (item in dictionary): #check if the word is top n frequent word
+                newsentence.append(dictionary[item]) #append
             else:
-                pass
-        newsentences.append(newsentence)
+                pass #otherwise do nothing
+        newsentences.append(newsentence) #append the sentence after each word has been iterated through
+    #all the sentences in X_train are of length 10, ie if longer - truncate, if shorter - pad
     X_train = sequence.pad_sequences(newsentences, maxlen=length, value=3001, padding="post", truncating="post")
     temp = []
     for i in range(samples):
         temp.append(one_hot(X_train[i]))
     return temp
+
 #collect all the lists into one list
 def collect(df,column,length):
     output = []
